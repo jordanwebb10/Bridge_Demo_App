@@ -7,6 +7,7 @@ library(shiny)
 library(shinydashboard)
 library(shinydashboardPlus)
 library(shinyWidgets)
+library(rmarkdown)
 library(flexdashboard)
 library(tidyverse)
 
@@ -34,9 +35,11 @@ demoApp.UI <- dashboardPage(skin = "blue", dashboardHeader(title = "ProActive Sp
                                                                      fluidRow(
                                                                        column(width = 3,
                                                                               selectInput("chooseName",label = "Choose a person's name", 
-                                                                                choices = c(), multiple = FALSE),
-                                                                              actionBttn("showPlot","Plot",style = "material-flat",color = "default",
-                                                                                         size = "sm")
+                                                                                choices = c("Dom","Jordan"), multiple = FALSE),
+                                                                              actionBttn("showPlot","Plot",style = "material-flat",color = "success",
+                                                                                         size = "sm"),br(),br(),
+                                                                              downloadBttn("report", "Download Report", style = "material-flat",
+                                                                                           color = "default", size = "sm")
                                                                        ),
                                                                        column(width = 9, 
                                                                               plotOutput("plot1")
@@ -52,6 +55,10 @@ demoApp.UI <- dashboardPage(skin = "blue", dashboardHeader(title = "ProActive Sp
 
 demoApp.Server <- function(input, output, session) {
   
+  # creat reactive values
+  rvs <- reactiveValues(plot = NULL)
+  
+  # gauge1 output
   output$gauge1 <- flexdashboard::renderGauge({
     flexdashboard::gauge(
       value = 10, # change this to be data we want
@@ -60,6 +67,7 @@ demoApp.Server <- function(input, output, session) {
     )
   })
   
+  # gauge2 output
   output$gauge2 <- flexdashboard::renderGauge({
     flexdashboard::gauge(
       value = 5, # change this to be data we want
@@ -68,14 +76,32 @@ demoApp.Server <- function(input, output, session) {
     )
   })
   
+  # show plot action button
   observeEvent(input$showPlot, {
     
     varName <- input$chooseName
     
+    # create rvs version of plot for reporting
+    rvs$plot <<- hist(rnorm(1000))
+    
+    # render plot
     output$plot1 <- renderPlot({
-      ggplot()
+      hist(rnorm(1000))
     })
+  
   })
+  
+  # download action button 
+  output$report <- downloadHandler(
+    filename = function() {
+      paste0("C:/Users/angel/Desktop/Bridge_Demo_App/Athlete_", input$chooseName, "_Forms_Analysis.html", sep = "")
+    },
+    content = function(file) {
+      rmarkdown::render("C:/Users/angel/Desktop/Bridge_Demo_App/sampleReport.Rmd",
+                        html_document(), output_file = file, 
+                        params = list(plot = rvs$plot, name = input$chooseName))
+    }
+  )
   
 }
 

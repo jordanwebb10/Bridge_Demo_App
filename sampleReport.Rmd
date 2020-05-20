@@ -1,0 +1,27 @@
+---
+title: 'ProActive Sports Performance Sample Report'
+output: html_document
+params:
+  plot: NA
+  name: NA
+---
+
+## Athlete Name Chosen: *`r params$name`*
+
+## Forms Analysis Plot:
+#```{r, echo = FALSE}
+#params$plot
+#```
+
+### How to Print or Convert to PDF:
+##### *Printing*
+
+1. Open the HTML document in your web browser (preferably Google Chrome) from where you saved it. 
+2. In the upper right hand corner, click on the 3 vertical dots. Click on "Print". 
+3. Choose your desired printer and print settings, then click "Print". 
+
+##### *Converting to PDF*
+
+1. Follow Steps 1 and 2 from the Printing guide. 
+2. Instead of choosing a printer location, in the Destination field, choose "Save to PDF". 
+3. Choose your desired PDF settings, then click "Save". 
