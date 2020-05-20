@@ -94,10 +94,10 @@ demoApp.Server <- function(input, output, session) {
   # download action button 
   output$report <- downloadHandler(
     filename = function() {
-      paste0("C:/Users/angel/Desktop/Bridge_Demo_App/Athlete_", input$chooseName, "_Forms_Analysis.html", sep = "")
+      paste0("Athlete_Forms_Analysis.html", sep = "")
     },
     content = function(file) {
-      rmarkdown::render("C:/Users/angel/Desktop/Bridge_Demo_App/sampleReport.Rmd",
+      rmarkdown::render(paste0(getwd(),"/sampleReport.Rmd",sep=""),
                         html_document(), output_file = file, 
                         params = list(plot = rvs$plot, name = input$chooseName))
     }
