@@ -82,11 +82,11 @@ demoApp.Server <- function(input, output, session) {
     varName <- input$chooseName
     
     # create rvs version of plot for reporting
-    rvs$plot <<- hist(rnorm(1000))
+    rvs$plot <<- hist(rnorm(1000)*nchar(input$chooseName))
     
     # render plot
     output$plot1 <- renderPlot({
-      hist(rnorm(1000))
+      hist(rnorm(1000)*nchar(input$chooseName))
     })
   
   })
