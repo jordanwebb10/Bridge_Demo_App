@@ -1,0 +1,87 @@
+---
+title: " : Report Example"
+runtime: shiny
+output:
+  flexdashboard::flex_dashboard:
+    css: proactive.css
+    logo: logo.png
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(flexdashboard)
+options(digits = 1)
+```
+
+```{r libraries, message=FALSE, warning=FALSE}
+# Load the required packages... you will need to ensure they are installed first.
+library(dplyr); library(knitr); library(ggplot2); library(magrittr); library(shiny); library(data.table); library(DT); library(webshot)
+# MAKE SURE PHANTOM JS IS INSTALLED
+# webshot::install_phantomjs()
+```
+
+
+```{r import3, message=FALSE, warning=FALSE, include=FALSE}
+data(mtcars)
+```
+
+Sidebar {.sidebar data-width=270}
+=======================================================================
+
+**Feature Selection**
+```{r}
+gears = mtcars$gear %>% as.factor() %>% levels()
+selectizeInput("grs", "GEARS",
+               gears, selected = gears[1])
+renderUI({
+downloadButton("downloadFile", "Download")
+})
+```
+
+page1
+=======================================================================
+
+page2
+=======================================================================
+
+Row {.tabset .tabset-fade}
+-----------------------------------------------------------------------
+
+### MPG Summary
+```{r MPG}
+mpgg = reactive({
+mtcars %>% filter(gear %in% input$grs) %>% group_by(carb) %>% summarize(count = n(), `Avg HP` = mean(hp), `Avg mpg` = mean(mpg))
+})
+renderTable({
+  mpgg()
+})
+```
+
+### MPG Graph
+
+```{r Graph}
+mpgp = reactive({
+  mtcars %>% filter(gear %in% input$grs) %>% ggplot(aes(x = hp, y = mpg)) + geom_point() + geom_smooth()
+
+})
+renderPlot({
+  mpgp()
+
+})
+```
+
+```{r download}
+output$downloadFile <- downloadHandler(filename = function() {
+return(paste('Cars', '.pdf', sep=''))
+},
+    content = function(file){
+    to_save <- list(
+    mpgg = mpgg(),
+    mpgp = mpgp()
+    )
+      saveRDS(to_save, "config_data.RDS")
+      rmarkdown::render("shadow_page.Rmd")
+      # file.remove("config_data.RDS")
+      webshot::webshot("shadow_page.html", file = file)
+                        })
+```

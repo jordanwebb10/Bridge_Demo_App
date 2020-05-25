@@ -10,6 +10,8 @@ library(shinyWidgets)
 library(rmarkdown)
 library(flexdashboard)
 library(tidyverse)
+library(shinipsum)
+library(plotly)
 
 ## Load in the data
 ## Still working on this part to read right from Google Drive
@@ -33,16 +35,16 @@ demoApp.UI <- dashboardPage(skin = "blue", dashboardHeader(title = "ProActive Sp
                                                                fluidRow(
                                                                  box(width = 12, title = "Box3", status = "info", solidHeader = T,
                                                                      fluidRow(
-                                                                       column(width = 3,
+                                                                       column(width = 2,
                                                                               selectInput("chooseName",label = "Choose a person's name", 
-                                                                                choices = c("Dom","Jordan"), multiple = FALSE),
+                                                                                choices = c("Dom","Jordan"), multiple = FALSE, width = '100%'),
                                                                               actionBttn("showPlot","Plot",style = "material-flat",color = "success",
-                                                                                         size = "sm"),br(),br(),
+                                                                                         size = "sm", block = T),br(),
                                                                               downloadBttn("report", "Download Report", style = "material-flat",
-                                                                                           color = "default", size = "sm")
+                                                                                           color = "default", size = "sm", block = T)
                                                                        ),
-                                                                       column(width = 9, 
-                                                                              plotOutput("plot1")
+                                                                       column(width = 10, 
+                                                                              plotlyOutput("plot1")
                                                                        ))
                                                                  )
                                                                )
@@ -82,11 +84,11 @@ demoApp.Server <- function(input, output, session) {
     varName <- input$chooseName
     
     # create rvs version of plot for reporting
-    rvs$plot <<- hist(rnorm(1000)*nchar(input$chooseName))
+    rvs$plot <<- random_ggplotly("bar")
     
     # render plot
-    output$plot1 <- renderPlot({
-      hist(rnorm(1000)*nchar(input$chooseName))
+    output$plot1 <- renderPlotly({
+      random_ggplotly("bar")
     })
   
   })
