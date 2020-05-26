@@ -1,0 +1,39 @@
+---
+title: "Snapshot Example"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(flexdashboard)
+options(digits = 1)
+```
+
+```{r libraries, message=FALSE, warning=FALSE}
+# Load the required packages... you will need to ensure they are installed first.
+library(dplyr); library(knitr); library(ggplot2); library(magrittr); library(shiny); library(data.table); library(DT); library(webshot)
+# MAKE SURE PHANTOM JS IS INSTALLED
+# webshot::install_phantomjs()
+```
+
+
+```{r import3, message=FALSE, warning=FALSE, include=FALSE}
+  data <- readRDS("config_data.RDS")
+```
+
+
+### MPG Summary
+```{r MPG}
+  data$mpgg %>% kable() 
+```
+
+### MPG Graph
+
+```{r Graph}
+data$mpgp %>% print()
+```
+
