@@ -10,19 +10,19 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 library(flexdashboard)
-options(digits = 1)
+options(digits = 5)
 ```
 
 ```{r libraries, message=FALSE, warning=FALSE}
 # Load the required packages... you will need to ensure they are installed first.
-library(dplyr); library(knitr); library(ggplot2); library(magrittr); library(shiny); library(data.table); library(DT); library(webshot)
+library(dplyr); library(knitr); library(ggplot2); library(magrittr); library(shiny); library(data.table); library(DT); library(webshot); library(shinyWidgets); library(cowplot)
 # MAKE SURE PHANTOM JS IS INSTALLED
 # webshot::install_phantomjs()
 ```
 
 
 ```{r import3, message=FALSE, warning=FALSE, include=FALSE}
-data(mtcars)
+NFLdata = data.frame("Date" = c(rep("2014-01-13",7),rep("2014-02-14",7)), "Athlete" = c(rep("Athlete A",14)), "Test" = c("10 Yard Split (40 Yard Dash)","20 Yard Split (40 Yard Dash)","Vertical Jump", "Pro Agility Shuttle","Barbell Bench 225 Lbs","3 Cone Shuttle","Broad Jump","10 Yard Split (40 Yard Dash)","20 Yard Split (40 Yard Dash)","Vertical Jump", "Pro Agility Shuttle","Barbell Bench 225 Lbs","3 Cone Shuttle","Broad Jump"), "Pre_or_Post" = c(rep("Pre",7),rep("Post",7)), "Measurement" = c(1.69, 2.75, 33, 4.4, 8, 7.24, 9.3, 1.59, 2.63, 35.5, 4.08, 11, 6.97, 9.9))
 ```
 
 Sidebar {.sidebar data-width=270}
@@ -30,11 +30,12 @@ Sidebar {.sidebar data-width=270}
 
 **Feature Selection**
 ```{r}
-gears = mtcars$gear %>% as.factor() %>% levels()
-selectizeInput("grs", "GEARS",
-               gears, selected = gears[1])
+athletes = c("Athlete A")
+pickerInput(
+  inputId = "chooseAthlete", label = "Select an Athlete", choices = athletes, options = list(`actions-box` = TRUE, size = 10, `selected-text-format` = "count > 3"), multiple = FALSE)
+
 renderUI({
-downloadButton("downloadFile", "Download")
+  downloadBttn("downloadFile", "Download",  style = "material-flat", color = "default", size = "sm", block = T)
 })
 ```
 
@@ -47,26 +48,48 @@ page2
 Row {.tabset .tabset-fade}
 -----------------------------------------------------------------------
 
-### MPG Summary
+### Athlete Table Summary
 ```{r MPG}
-mpgg = reactive({
-mtcars %>% filter(gear %in% input$grs) %>% group_by(carb) %>% summarize(count = n(), `Avg HP` = mean(hp), `Avg mpg` = mean(mpg))
+NFLdata.table = reactive({
+  NFLdata %>% filter(Athlete %in% input$chooseAthlete) %>% group_by(Date)
 })
 renderTable({
-  mpgg()
+  NFLdata.table()
 })
 ```
 
-### MPG Graph
-
+### Output Graphs
 ```{r Graph}
-mpgp = reactive({
-  mtcars %>% filter(gear %in% input$grs) %>% ggplot(aes(x = hp, y = mpg)) + geom_point() + geom_smooth()
-
+tenYard.plot = reactive({
+  NFLdata %>% dplyr::filter(Test == "10 Yard Split (40 Yard Dash)", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "10 Yard Split (40 Yard Dash)", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 2.0) + ggtitle("10 Yard Split (40 Yard Dash)") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
 })
-renderPlot({
-  mpgp()
 
+twentyYard.plot = reactive({
+  NFLdata %>% dplyr::filter(Test == "20 Yard Split (40 Yard Dash)", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "20 Yard Split (40 Yard Dash)", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 3.0) + ggtitle("20 Yard Split (40 Yard Dash)") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+})
+
+vertJump.plot = reactive({
+  NFLdata %>% dplyr::filter(Test == "Vertical Jump", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "Vertical Jump", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 40.0) + ggtitle("Vertical Jump") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+})
+
+proAgil.plot = reactive({
+  NFLdata %>% dplyr::filter(Test == "Pro Agility Shuttle", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "Pro Agility Shuttle", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 5.0) + ggtitle("Pro Agility Shuttle") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+})
+
+bench.plot = reactive({
+  NFLdata %>% dplyr::filter(Test == "Barbell Bench 225 Lbs", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "Barbell Bench 225 Lbs", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 30.0) + ggtitle("Barbell Bench 225 Lbs") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+})
+
+threeCone.plot = reactive({
+  NFLdata %>% dplyr::filter(Test == "3 Cone Shuttle", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "3 Cone Shuttle", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 9.0) + ggtitle("3 Cone Shuttle") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+})
+
+broadJump.plot = reactive({
+  NFLdata %>% dplyr::filter(Test == "Broad Jump", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "Broad Jump", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 12.0) + ggtitle("Broad Jump") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+})
+
+renderPlot({
+  plot_grid(tenYard.plot(), twentyYard.plot(), vertJump.plot(), proAgil.plot(), bench.plot(), threeCone.plot(), broadJump.plot(), align = "hv")
 })
 ```
 
@@ -76,8 +99,7 @@ return(paste('Cars', '.pdf', sep=''))
 },
     content = function(file){
     to_save <- list(
-    mpgg = mpgg(),
-    mpgp = mpgp()
+    NFL = NFLdata.table(), tenYard = tenYard.plot(), twentyYard = twentyYard.plot(), vertJump = vertJump.plot(), proAgil = proAgil.plot(), bench = bench.plot(), threeCone = threeCone.plot(), broadJump = broadJump.plot()
     )
       saveRDS(to_save, "config_data.RDS")
       rmarkdown::render("shadow_page.Rmd")

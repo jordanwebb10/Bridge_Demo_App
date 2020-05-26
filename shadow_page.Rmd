@@ -28,12 +28,20 @@ library(dplyr); library(knitr); library(ggplot2); library(magrittr); library(shi
 
 ### MPG Summary
 ```{r MPG}
-  data$mpgg %>% kable() 
+  #data$mpgg %>% kable() 
+data$NFL %>% kable()
 ```
 
 ### MPG Graph
 
 ```{r Graph}
-data$mpgp %>% print()
+#data$mpgp %>% print()
+data$tenYard %>% print()
+data$twentyYard %>% print()
+data$vertJump %>% print()
+data$proAgil %>% print()
+data$bench %>% print()
+data$threeCone %>% print()
+data$broadJump %>% print()
 ```
 
