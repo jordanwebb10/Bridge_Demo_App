@@ -15,7 +15,7 @@ options(digits = 5)
 
 ```{r libraries, message=FALSE, warning=FALSE}
 # Load the required packages... you will need to ensure they are installed first.
-library(dplyr); library(knitr); library(ggplot2); library(magrittr); library(shiny); library(data.table); library(DT); library(webshot); library(shinyWidgets); library(cowplot)
+library(dplyr); library(knitr); library(ggplot2); library(magrittr); library(shiny); library(data.table); library(DT); library(webshot); library(shinyWidgets); library(cowplot); library(ggfittext)
 # MAKE SURE PHANTOM JS IS INSTALLED
 # webshot::install_phantomjs()
 ```
@@ -61,31 +61,46 @@ renderTable({
 ### Output Graphs
 ```{r Graph}
 tenYard.plot = reactive({
-  NFLdata %>% dplyr::filter(Test == "10 Yard Split (40 Yard Dash)", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "10 Yard Split (40 Yard Dash)", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 2.0) + ggtitle("10 Yard Split (40 Yard Dash)") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+  Pre = NFLdata %>% dplyr::filter(Test == "10 Yard Split (40 Yard Dash)", Pre_or_Post == "Pre") %>% pull(Measurement)
+  NFLdata %>% dplyr::filter(Test == "10 Yard Split (40 Yard Dash)", Pre_or_Post == "Post") %>% 
+    ggplot(., aes(x = Test, y = Measurement, label = paste("Post: ", Measurement, sep = ""))) + geom_bar(stat="identity", width = 0.25, fill = "red") + geom_hline(yintercept = Pre, color = "blue") + geom_bar_text(reflow = T, place = "right") + annotate("text",x = 1, y = Pre*1.05, label = paste("Pre: ",Pre,sep = ""), angle = 270) + coord_flip() + 
+    scale_y_continuous(limits = c(0,2), breaks = c(0,0.25,0.5,0.75,1,1.25,1.5,1.75,2)) + ggtitle("10 Yard Split (40 Yard Dash)") + theme_minimal() + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank(), axis.title.x = element_blank(), panel.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size=1))
 })
 
 twentyYard.plot = reactive({
-  NFLdata %>% dplyr::filter(Test == "20 Yard Split (40 Yard Dash)", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "20 Yard Split (40 Yard Dash)", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 3.0) + ggtitle("20 Yard Split (40 Yard Dash)") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+  Pre = NFLdata %>% dplyr::filter(Test == "20 Yard Split (40 Yard Dash)", Pre_or_Post == "Pre") %>% pull(Measurement)
+  NFLdata %>% dplyr::filter(Test == "20 Yard Split (40 Yard Dash)", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement, label = paste("Post: ",Measurement,sep=""))) + geom_bar(stat="identity", width = 0.25, fill = "red") + geom_hline(yintercept = Pre, color = "blue") + geom_bar_text(reflow = T, place = "right") + annotate("text",x = 1, y = Pre*1.05, label = paste("Pre: ",Pre,sep = ""), angle = 270) + coord_flip() + 
+    scale_y_continuous(limits = c(0,3), breaks = c(0,0.5,1,1.5,2,2.5,3)) + ggtitle("20 Yard Split (40 Yard Dash)") + theme_minimal() + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank(), axis.title.x = element_blank(), panel.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size=1))
 })
 
 vertJump.plot = reactive({
-  NFLdata %>% dplyr::filter(Test == "Vertical Jump", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "Vertical Jump", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 40.0) + ggtitle("Vertical Jump") + theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank())
+  Pre = NFLdata %>% dplyr::filter(Test == "Vertical Jump", Pre_or_Post == "Pre") %>% pull(Measurement)
+  NFLdata %>% dplyr::filter(Test == "Vertical Jump", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement, label = paste("Post: ",Measurement,sep=""))) + geom_bar(stat="identity", width = 0.25, fill = "red") + geom_hline(yintercept = Pre, color = "blue") + geom_bar_text(reflow = T, place = "middle") + annotate("text",x = 1.35, y = Pre*1.05, label = paste("Pre: ",Pre,sep = ""), angle = 270) +
+    coord_flip() + scale_y_continuous(limits = c(0,40), breaks = c(0,5,10,15,20,25,30,35,40)) + ggtitle("Vertical Jump") + theme_minimal() +  theme(axis.title.y=element_blank(), axis.text.y=element_blank(), axis.ticks.y=element_blank(), axis.title.x = element_blank(), panel.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size=1))
 })
 
 proAgil.plot = reactive({
-  NFLdata %>% dplyr::filter(Test == "Pro Agility Shuttle", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "Pro Agility Shuttle", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 5.0) + ggtitle("Pro Agility Shuttle") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+  Pre = NFLdata %>% dplyr::filter(Test == "Pro Agility Shuttle", Pre_or_Post == "Pre") %>% pull(Measurement)
+  NFLdata %>% dplyr::filter(Test == "Pro Agility Shuttle", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement, label = paste("Post: ",Measurement,sep=""))) + geom_bar(stat="identity", width = 0.25, fill = "red") + geom_hline(yintercept = Pre, color = "blue") + geom_bar_text(reflow = T, place = "right") + annotate("text",x = 1, y = Pre*1.05, label = paste("Pre: ",Pre,sep = ""), angle = 270) +
+    coord_flip() + scale_y_continuous(limits = c(0,5), breaks = c(0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5)) + ggtitle("Pro Agility Shuttle") + theme_minimal() + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank(), axis.title.x = element_blank(), panel.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size=1))
 })
 
 bench.plot = reactive({
-  NFLdata %>% dplyr::filter(Test == "Barbell Bench 225 Lbs", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "Barbell Bench 225 Lbs", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 30.0) + ggtitle("Barbell Bench 225 Lbs") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+  Pre = NFLdata %>% dplyr::filter(Test == "Barbell Bench 225 Lbs", Pre_or_Post == "Pre") %>% pull(Measurement)
+  NFLdata %>% dplyr::filter(Test == "Barbell Bench 225 Lbs", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement, label = paste("Post: ",Measurement,sep=""))) + geom_bar(stat="identity", width = 0.25, fill = "red") + geom_hline(yintercept = Pre, color = "blue") + geom_bar_text(reflow = T, place = "left") + annotate("text",x = 1.35, y = Pre*1.1, label = paste("Pre: ",Pre,sep = ""), angle = 270) +
+    coord_flip() + scale_y_continuous(limits = c(0,30), breaks = c(0,5,10,15,20,25,30)) + ggtitle("Barbell Bench 225 Lbs") + theme_minimal() + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank(), axis.title.x = element_blank(), panel.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size=1))
 })
 
 threeCone.plot = reactive({
-  NFLdata %>% dplyr::filter(Test == "3 Cone Shuttle", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "3 Cone Shuttle", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 9.0) + ggtitle("3 Cone Shuttle") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+  Pre = NFLdata %>% dplyr::filter(Test == "3 Cone Shuttle", Pre_or_Post == "Pre") %>% pull(Measurement)
+  NFLdata %>% dplyr::filter(Test == "3 Cone Shuttle", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement, label = paste("Post: ",Measurement,sep=""))) + geom_bar(stat="identity", width = 0.25, fill = "red") + geom_hline(yintercept = Pre, color = "blue") + geom_bar_text(reflow = T, place = "right") + annotate("text",x = 1.025, y = Pre*1.05, label = paste("Pre: ",Pre,sep = ""), angle = 270) +
+    coord_flip() + scale_y_continuous(limits = c(0,9), breaks = c(0,3,6,9)) + ggtitle("3 Cone Shuttle") + theme_minimal() + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank(), axis.title.x = element_blank(), panel.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size=1))
 })
 
 broadJump.plot = reactive({
-  NFLdata %>% dplyr::filter(Test == "Broad Jump", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement)) + geom_bar(stat="identity", width = 0.1, fill = "red") + geom_hline(yintercept = NFLdata %>% dplyr::filter(Test == "Broad Jump", Pre_or_Post == "Pre") %>% pull(Measurement), color = "blue") + coord_flip() + ylim(0, 12.0) + ggtitle("Broad Jump") + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+  Pre = NFLdata %>% dplyr::filter(Test == "Broad Jump", Pre_or_Post == "Pre") %>% pull(Measurement)
+  NFLdata %>% dplyr::filter(Test == "Broad Jump", Pre_or_Post == "Post") %>% ggplot(., aes(x = Test, y = Measurement, label = paste("Post: ",Measurement,sep=""))) + geom_bar(stat="identity", width = 0.25, fill = "red") + geom_hline(yintercept = Pre, color = "blue") + geom_bar_text(reflow = T, place = "middle") + annotate("text",x = 1.35, y = Pre*1.05, label = paste("Pre: ",Pre,sep = ""), angle = 270) +
+    coord_flip() + scale_y_continuous(limits = c(0,12), breaks = c(0,2,4,6,8,10,12)) + ggtitle("Broad Jump") + theme_minimal() + theme(axis.title.y=element_blank(),axis.text.y=element_blank(),axis.ticks.y=element_blank(), axis.title.x = element_blank(), panel.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA, size=1))
 })
 
 renderPlot({
