@@ -4,6 +4,8 @@
 ## Source modules
 source("BodySidebarFunctions.R")
 source("sampleGraphModule.R")
+source("sampleModelModule.R")
+source("sampleDataModule.R")
 
 ## Load packages
 library(tidyverse) # library for data wrangling and manipulations
@@ -21,6 +23,7 @@ library(ggthemes) # package for extra plotting themes
 library(odbc) # package for database connection
 library(DBI) # package for database connection
 library(rmarkdown) # package for reporting out nicely
+library(class) # package for modeling (knn)
 
 ## Load in the mtcars data set
 data <- read.csv("iris.csv")
@@ -34,6 +37,8 @@ ui <- dashboardPage(header = dashboardHeader(title = "Sample Test AppQ"),
 server <- function(input, output, session) {
   # call server parts of modules
   callModule(graph_Server, "sampleGraph", df = data)
+  callModule(model_server, "sampleModel", df = data)
+  callModule(data_server, "sampleData", df = data)
 }
 
 ## Run the app

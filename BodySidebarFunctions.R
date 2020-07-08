@@ -7,9 +7,9 @@ sampleBody <- function() {
       # tab item for graphs tab
       tabItem(tabName = "graphs", graph_UI("sampleGraph")),
       # tab item for models tab
-      tabItem(tabName = "models"),
+      tabItem(tabName = "models", model_UI("sampleModel")),
       # tab item for data tab
-      tabItem(tabName = "data")
+      tabItem(tabName = "data", data_UI("sampleData"))
     )
   )
 }
