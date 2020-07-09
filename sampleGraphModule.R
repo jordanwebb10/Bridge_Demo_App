@@ -45,19 +45,37 @@ graph_Server <- function(input, output, session, df) {
   
   # observe hitting of plot button and then produce plots
   observeEvent(input$plot, {
-    x <- isolate(input$chooseX)
-    y <- isolate(input$chooseY)
-    pts <- isolate(input$numPoints)
-    
-    output$ggplotGraph <- renderPlot({
-      df %>% sample_n(pts, replace = FALSE) %>% ggplot2::ggplot(aes_string(x,y)) + geom_point() + theme_minimal()
+    tryCatch({
+      x <- isolate(input$chooseX)
+      y <- isolate(input$chooseY)
+      pts <- isolate(input$numPoints)
+      
+      output$ggplotGraph <- renderPlot({
+        df %>% sample_n(pts, replace = FALSE) %>% ggplot2::ggplot(aes_string(y)) + geom_point() + theme_minimal()
+      })
+      
+      x.ptly <- reactive({ df[, input$chooseX] })
+      y.ptly <- reactive({ df[, input$chooseY] })
+      output$plotlyGraph <- renderPlotly({
+        plot_ly(df %>% sample_n(pts, replace = FALSE), x = x.ptly(), y = y.ptly(), type = "scatter", mode = "markers")
+      })
+      
+    }, error = function(e) {
+      print("There was an error that caused the app to malfunction.")
+      print("Here is the original error message: ")
+      print(e)
+      
+      return(NA)
+      
+    }, warning = function(w) {
+      print("There was a warning message present.")
+      print("Here's the originial warning message: ")
+      print(w)
+      
+      return(NA)
+      
     })
     
-    x.ptly <- reactive({ df[, input$chooseX] })
-    y.ptly <- reactive({ df[, input$chooseY] })
-    output$plotlyGraph <- renderPlotly({
-      plot_ly(df %>% sample_n(pts, replace = FALSE), x = x.ptly(), y = y.ptly(), type = "scatter", mode = "markers")
-    })
   })
   
 }

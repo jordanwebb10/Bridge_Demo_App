@@ -22,9 +22,25 @@ data_server <- function(input, output, session, df) {
   
   # get name space
   ns <- session$ns
+  tryCatch({
+    # render data table 
+    output$dTable <- renderDT(
+      df, options = list(lengthChange = FALSE)
+    )
+  }, error = function(e) {
+    print("There was an error that caused the app to malfunction.")
+    print("Here is the original error message: ")
+    print(e)
+    
+    return(NA)
+    
+  }, warning = function(w) {
+    print("There was a warning message present.")
+    print("Here's the originial warning message: ")
+    print(w)
+    
+    return(NA)
+    
+  })
   
-  # render data table 
-  output$dTable <- renderDT(
-    df, options = list(lengthChange = FALSE)
-  )
 }
