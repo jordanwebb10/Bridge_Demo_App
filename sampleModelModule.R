@@ -54,8 +54,7 @@ model_server <- function(input, output, session, df) {
         })
       } else if (input$chooseModel == "KNN") {
         
-        #df.train <- df[1:120, 1:4]
-        df.train <- df[1:120,]
+        df.train <- df[1:120, 1:4]
         df.test <- df[121:150, 1:4]
         targ.train <- df[1:120, 5]
         targ.test <- df[121:150,5]
