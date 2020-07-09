@@ -51,7 +51,7 @@ graph_Server <- function(input, output, session, df) {
       pts <- isolate(input$numPoints)
       
       output$ggplotGraph <- renderPlot({
-        df %>% sample_n(pts, replace = FALSE) %>% ggplot2::ggplot(aes_string(y)) + geom_point() + theme_minimal()
+        df %>% sample_n(pts, replace = FALSE) %>% ggplot2::ggplot(aes_string(x,y)) + geom_point() + theme_minimal()
       })
       
       x.ptly <- reactive({ df[, input$chooseX] })

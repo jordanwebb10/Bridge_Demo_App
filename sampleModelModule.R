@@ -43,7 +43,7 @@ model_server <- function(input, output, session, df) {
         df2 <- df[sample(1:nrow(df)), ]
         df2$virginica <- df2$Species == "virginica"
         df$virginica <- df$Species == "virginica"
-        model <- glm(virginica ~ Sepal.Length + Sepal.Width + Petal.Length + Petal.Width, data = df2, family = "binomial")
+        model <- glm(virginica ~ Sepal.Length + Petal.Width, data = df2, family = "binomial")
         pred <- predict(model, df, type = "response")
         pred <- round(pred, 2)
         

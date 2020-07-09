@@ -29,7 +29,7 @@ library(class) # package for modeling (knn)
 data <- read.csv("iris.csv")
 
 ## Create dashboard UI
-ui <- dashboardPage(header = dashboardHeader(title = "Sample Test AppQ"),
+ui <- dashboardPage(header = dashboardHeader(title = "Sample Test App"),
                     sidebar = sampleSidebar(), 
                     body = sampleBody(), skin = "blue")
 
